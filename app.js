@@ -25,7 +25,7 @@ require('dotenv').config();
  * set up default port
  * process.env.PORT || 3000
  */
-app.set('port', process.env.PORT);
+app.set('port', process.env.PORT || 3000);
 
 // V = Define View Directory Here
 app.set('views', './app/views');

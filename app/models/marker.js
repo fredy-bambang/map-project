@@ -6,7 +6,7 @@
 "use strict";
 
 module.exports = function (sequelize, DataTypes) {
-  var Marker = sequelize.define("Marker", {
+  var marker = sequelize.define("marker", {
     name: DataTypes.STRING,
     lat: DataTypes.STRING,
     long: DataTypes.STRING
@@ -17,5 +17,5 @@ module.exports = function (sequelize, DataTypes) {
       freezeTableName: true
     });
 
-  return Marker;
+  return marker;
 };

@@ -11,7 +11,7 @@ module.exports.controller = function (app) {
      * @return (String) 'success' only
      */
     app.post('/marker', function (req, res) {
-        models.Marker
+        models.marker
             .create(req.body)
             .then(function (m) {
                 res.send('success');
@@ -23,7 +23,7 @@ module.exports.controller = function (app) {
      * @return {json} with markers list from database
      */
     app.get('/marker', function (req, res) {
-        models.Marker.findAll({})
+        models.marker.findAll({})
             .then(function (markers) {
                 res.send(markers);
                 console.log(markers);
@@ -37,7 +37,7 @@ module.exports.controller = function (app) {
      */
     app.put('/marker/:id', function (req, res) {
 
-        models.Marker.update({
+        models.marker.update({
             name: req.body.name
         }, {where: { 
             id: req.params.id 
@@ -55,7 +55,7 @@ module.exports.controller = function (app) {
      * @return {String} with value success only
      */
     app.delete('/marker/:id', function (req, res) {
-        models.Marker.destroy({
+        models.marker.destroy({
             where: {
                 id: req.params.id
             }
