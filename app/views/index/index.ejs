@@ -1,0 +1,161 @@
+<% include ../partials/header %>
+
+<div ng-controller="mapCtrl as vm">
+
+    <div class="col-sm-12">
+        <form class="form-inline pull-right">
+            <div class="form-group">
+                <label for="exampleInputName2">Origin : </label> &nbsp;
+                <select class="form-control" ng-model="origin">
+                    <option ng-repeat="x in vm.markers" value="{{x.lat}},{{x.long}}">{{x.name}} ({{x.lat}},{{x.long}})</option>
+                </select>
+                 &nbsp;
+            </div>
+            
+            <div class="form-group">
+                <label for="exampleInputEmail2">Destination : </label>  &nbsp;
+                <select class="form-control" ng-model="destination">
+                    <option ng-repeat="x in vm.markers" value="{{x.lat}},{{x.long}}">{{x.name}} ({{x.lat}},{{x.long}})</option>
+                </select>
+            </div>
+        </form>
+
+        <div style="clear:both"></div><br>
+        <ng-map center="[-6.121435, 106.774124]" on-click="vm.addMarker()">
+            <marker ng-repeat="p in vm.positions" position="{{p.pos}}" title="{{p.name === null || p.name.length === 0  ? 'pos' : p.name}}: {{p.pos}}" on-click="vm.testMarker()"></marker>
+
+            <directions 
+                draggable="true"
+                panel="directions-panel"
+                travel-mode="DRIVING"
+                origin="{{origin === destination ? '' : origin}}"
+                destination="{{destination === origin ? '' : destination}}">
+            </directions>
+        </ng-map>
+
+        <form class="form-inline pull-right">
+            <div class="form-group">
+                <button class="btn btn-default" ng-click="vm.deleteMarkers()">Hide Marker</button> &nbsp;
+            </div>
+
+            <div class="form-group">
+                <a href="<%= process.env.BASE_URL %>/screenshot/{{origin}}/{{destination}}" 
+                    class="btn btn-primary" 
+                    ng-disabled="!origin || !destination"
+                    target=_blank>Take Screen Shots</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-8">
+            <h3>Data Markers</h3>
+            <table class="table table-striped">
+                <tr>
+                    <th>Name</th>
+                    <th>Lat</th>
+                    <th>Long</th>
+                    <th>Action</th>
+                </tr>
+                <tr ng-repeat="x in vm.markers">
+                    <td><input type="text" class="form-control" ng-model="x.name" placeholder="Place Name Here"></td>
+                    <td>{{x.lat}}</td>
+                    <td>{{x.long}}</td>
+                    <td>
+                        <button class="btn btn-primary" ng-click="vm.update(x)"><span class="glyphicon glyphicon-floppy-disk" ></span></button>
+                        <button class="btn btn-danger" ng-click="vm.delete(x.id)"><span class="glyphicon glyphicon-remove" ></span></button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="col-sm-4">
+            <h3>Directions</h3>
+            <div id="directions-panel" style="overflow: auto; padding: 0px 5px;"></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    var app = angular.module('mapProject', ['ngMap']);
+    app.controller('mapCtrl', function ($scope, $http, $window) {
+
+        var vm = this;
+        vm.positions = [];
+        vm.markers = [];
+
+        vm.addMarker = function (event) {
+            var ll = event.latLng;
+            vm.positions.push({
+                pos:[ll.lat(), ll.lng()] 
+            });
+            console.log(vm.positions);
+
+            var fields = {};
+            fields.lat = ll.lat();
+            fields.long = ll.lng();
+
+            $http.post('/marker', fields, 'json').success(function (response) {
+                vm.positions = [];
+                vm.loadMarker()
+            }).error(function (response) {
+
+            }); 
+        }
+
+        vm.loadMarker = function () {
+            $http.get('/marker', {}, 'json').success(function (response) {
+                vm.markers = response;
+                var log = [];
+                angular.forEach(response, function (value, key){
+                    vm.positions.push({pos:[value.lat, value.long],name:value.name});
+                }, log)
+            }).error(function (response) {
+
+            }); 
+        }
+
+        vm.loadMarker();
+
+        vm.deleteMarkers = function() {
+            vm.positions = [];
+        };
+
+        /**
+         * @params {json} record Selected record from markers data.
+         */
+        vm.update = function (record) {
+            $http.put('/marker/' + record.id, record, 'json').success(function (response) {
+                console.log(response);
+                vm.loadMarker();
+                vm.positions = [];
+                angular.forEach(response, function (value, key){
+                    vm.positions.push({pos:[value.lat, value.long]});
+                })
+            }).error(function (response) {
+
+            }); 
+        }
+
+        /**
+         * @params {string} id Selected id from markers data.
+         */
+        vm.delete = function (id) {
+            $http.delete('/marker/' + id, {}, 'json').success(function (response) {
+                console.log(response);
+                vm.loadMarker();
+                vm.positions = [];
+                var log = [];
+                angular.forEach(response, function (value, key){
+                    vm.positions.push({pos:[value.lat, value.long]});
+                }, log)
+            }).error(function (response) {
+
+            }); 
+        } 
+    });
+</script>
+
+<% include ../partials/footer %>
+    

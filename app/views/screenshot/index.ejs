@@ -1,0 +1,30 @@
+<% include ../partials/header %>
+
+<div ng-controller="mapCtrl as vm">
+    <div class="col-sm-12">
+        <ng-map center="[-6.121435, 106.774124]">
+            <directions 
+                draggable="true"
+                panel="directions-panel"
+                travel-mode="DRIVING"
+                origin="<%= origin %>""
+                destination="<%= destination %>">
+            </directions>
+        </ng-map>
+    </div>
+
+    <div class="col-sm-4">
+        <h3>Directions  </h3>
+        <div id="directions-panel" style="overflow: auto; padding: 0px 5px;"></div>
+    </div>
+</div>
+
+<script>
+    var app = angular.module('mapProject', ['ngMap']);
+    app.controller('mapCtrl', function ($scope, $http, $window) {
+       
+    });
+</script>
+
+<% include ../partials/footer %>
+    
